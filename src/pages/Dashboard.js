@@ -1,39 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useQuiz } from '../contexts/QuizContext';
 import { HiPlusCircle, HiCollection, HiChartBar, HiClock, HiUsers, HiTrash, HiPencil } from 'react-icons/hi';
 
 function Dashboard() {
-  const { currentUser, userProfile } = useAuth();
+  const { currentUser } = useAuth();
   const { getMyQuizzes, getMyResults, deleteQuiz } = useQuiz();
   const [myQuizzes, setMyQuizzes] = useState([]);
   const [myResults, setMyResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('quizzes');
 
-  useEffect(() => {
-    let isMounted = true;
-    
-    async function fetchData() {
-      try {
-        const [quizzes, results] = await Promise.all([
-          getMyQuizzes(),
-          getMyResults()
-        ]);
-        if (isMounted) {
-          setMyQuizzes(quizzes);
-          setMyResults(results);
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-      if (isMounted) setLoading(false);
+  const fetchData = useCallback(async () => {
+    try {
+      const [quizzes, results] = await Promise.all([
+        getMyQuizzes(),
+        getMyResults()
+      ]);
+      setMyQuizzes(quizzes);
+      setMyResults(results);
+    } catch (error) {
+      console.error('Error fetching data:', error);
     }
-    
+    setLoading(false);
+  }, [getMyQuizzes, getMyResults]);
+
+  useEffect(() => {
     fetchData();
-    return () => { isMounted = false; };
-  }, []);
+  }, [fetchData]);
 
   async function handleDeleteQuiz(quizId) {
     if (window.confirm('Are you sure you want to delete this quiz?')) {

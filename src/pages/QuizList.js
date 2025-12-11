@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuiz } from '../contexts/QuizContext';
 import { HiSearch, HiClock, HiUsers, HiCollection } from 'react-icons/hi';
@@ -10,19 +10,20 @@ function QuizList() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
-  useEffect(() => {
-    async function fetchQuizzes() {
-      try {
-        const data = await getPublicQuizzes();
-        setQuizzes(data);
-        setFilteredQuizzes(data);
-      } catch (error) {
-        console.error('Error fetching quizzes:', error);
-      }
-      setLoading(false);
+  const fetchQuizzes = useCallback(async () => {
+    try {
+      const data = await getPublicQuizzes();
+      setQuizzes(data);
+      setFilteredQuizzes(data);
+    } catch (error) {
+      console.error('Error fetching quizzes:', error);
     }
+    setLoading(false);
+  }, [getPublicQuizzes]);
+
+  useEffect(() => {
     fetchQuizzes();
-  }, []);
+  }, [fetchQuizzes]);
 
   useEffect(() => {
     const filtered = quizzes.filter(quiz =>

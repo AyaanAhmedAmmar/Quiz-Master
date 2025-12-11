@@ -9,7 +9,6 @@ import {
   getDoc, 
   query, 
   where,
-  orderBy,
   increment
 } from 'firebase/firestore';
 import { db } from '../firebase/config';

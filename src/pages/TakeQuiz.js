@@ -17,21 +17,22 @@ function TakeQuiz() {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState(null);
 
-  useEffect(() => {
-    async function fetchQuiz() {
-      try {
-        const data = await getQuizById(quizId);
-        if (data) {
-          setQuiz(data);
-          setTimeLeft(data.timeLimit * 60);
-        }
-      } catch (error) {
-        console.error('Error fetching quiz:', error);
+  const fetchQuiz = useCallback(async () => {
+    try {
+      const data = await getQuizById(quizId);
+      if (data) {
+        setQuiz(data);
+        setTimeLeft(data.timeLimit * 60);
       }
-      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching quiz:', error);
     }
+    setLoading(false);
+  }, [getQuizById, quizId]);
+
+  useEffect(() => {
     fetchQuiz();
-  }, [quizId]);
+  }, [fetchQuiz]);
 
   const handleSubmit = useCallback(async () => {
     if (submitting || result) return;
